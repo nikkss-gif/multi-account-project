@@ -1,0 +1,11 @@
+FROM maven:3.9.4-eclipse-temurin-17 as build
+WORKDIR /workspace
+COPY pom.xml .
+COPY src ./src
+RUN mvn -B -DskipTests package
+
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=build /workspace/target/backend-0.0.1-SNAPSHOT.jar /app/app.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-Dspring.profiles.active=docker","-jar","/app/app.jar"]

@@ -1,0 +1,80 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: demo
+      POSTGRES_PASSWORD: demo
+      POSTGRES_DB: demo
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    # no host port mapping to avoid conflicts; services use internal docker network
+
+  minio:
+    image: minio/minio:latest
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data
+    ports:
+      - 9000:9000
+
+  rabbitmq:
+    image: rabbitmq:3.11-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      SA_PASSWORD: "Your_strong@Passw0rd"
+      ACCEPT_EULA: "Y"
+    ports:
+      - 1433:1433
+
+  backend:
+    build: ./app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/demo
+      SPRING_DATASOURCE_USERNAME: demo
+      SPRING_DATASOURCE_PASSWORD: demo
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      RABBITMQ_HOST: rabbitmq
+      REDIS_HOST: redis
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+      - minio
+      - rabbitmq
+      - redis
+
+  worker:
+    build: ./worker
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/demo
+      SPRING_DATASOURCE_USERNAME: demo
+      SPRING_DATASOURCE_PASSWORD: demo
+      RABBITMQ_HOST: rabbitmq
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    depends_on:
+      - backend
+      - rabbitmq
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3001:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
