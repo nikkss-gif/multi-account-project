@@ -10,9 +10,12 @@ import java.net.URI;
 @RestController
 @RequestMapping("/v1/items")
 public class ItemController {
+
     private final ItemService service;
 
-    public ItemController(ItemService service) { this.service = service; }
+    public ItemController(ItemService service) {
+        this.service = service;
+    }
 
     @PostMapping
     public ResponseEntity<Item> create(@RequestBody Item item) {
@@ -22,13 +25,14 @@ public class ItemController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Item> get(@PathVariable Long id) {
-        return service.get(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return service.get(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Item> update(@PathVariable Long id, @RequestBody Item item) {
-        Item saved = service.update(id, item);
-        return ResponseEntity.ok(saved);
+        return ResponseEntity.ok(service.update(id, item));
     }
 
     @GetMapping("/health/ready")
