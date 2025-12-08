@@ -78,18 +78,18 @@ services:
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
 
-      # RabbitMQ (both Spring defaults + legacy env)
+      # RabbitMQ
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
       RABBITMQ_HOST: rabbitmq
 
-      # ✅ Redis (fix for your connection error)
+      # Redis
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
       REDIS_HOST: redis
       REDIS_PORT: 6379
     ports:
-      - "8081:8080"
+      - "8080:8080"        # 🔥 SAME FOR AWS + LOCAL
     depends_on:
       - postgres
       - redis
@@ -110,12 +110,12 @@ services:
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
 
-      # RabbitMQ (both Spring defaults + legacy env)
+      # RabbitMQ
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
       RABBITMQ_HOST: rabbitmq
 
-      # Redis (if worker uses it; harmless otherwise)
+      # Redis
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
       REDIS_HOST: redis
