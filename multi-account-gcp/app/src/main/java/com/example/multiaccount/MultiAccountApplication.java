@@ -12,6 +12,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 
 @SpringBootApplication
 public class MultiAccountApplication {
+
     public static void main(String[] args) {
         SpringApplication.run(MultiAccountApplication.class, args);
     }
