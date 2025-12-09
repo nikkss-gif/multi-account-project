@@ -17,7 +17,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    restart: unless-stopped
 
   redis:
     image: redis:7
@@ -29,7 +28,6 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
-    restart: unless-stopped
 
   minio:
     image: minio/minio:latest
@@ -42,23 +40,32 @@ services:
       - "9000:9000"
     volumes:
       - minio-data:/data
-    restart: unless-stopped
 
   rabbitmq:
     image: rabbitmq:3.11-management
     container_name: demo_rabbitmq
     ports:
       - "5672:5672"
-      - "15672:15672" # dashboard
+      - "15672:15672"
     healthcheck:
       test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
       interval: 10s
       timeout: 5s
       retries: 5
-    restart: unless-stopped
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: demo_sqlserver
+    environment:
+      SA_PASSWORD: "Your_strong@Passw0rd"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
 
   backend:
-    build: ./app
+    image: 785661981860.dkr.ecr.ap-south-1.amazonaws.com/backend-app:latest
     container_name: demo_backend
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/demo
@@ -74,6 +81,7 @@ services:
 
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
+
     ports:
       - "8080:8080"
     depends_on:
@@ -81,10 +89,9 @@ services:
       - redis
       - minio
       - rabbitmq
-    restart: unless-stopped
 
   worker:
-    build: ./worker
+    image: 785661981860.dkr.ecr.ap-south-1.amazonaws.com/worker-app:latest
     container_name: demo_worker
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/demo
@@ -105,17 +112,16 @@ services:
       - rabbitmq
       - minio
       - redis
-    restart: unless-stopped
 
   frontend:
-    build: ./frontend
+    image: 785661981860.dkr.ecr.ap-south-1.amazonaws.com/frontend-app:latest
     container_name: demo_frontend
     ports:
-      - "3001:80"   # public frontend
+      - "3001:80"
     depends_on:
       - backend
-    restart: unless-stopped
 
 volumes:
   pgdata:
   minio-data:
+  sqlserver-data:
