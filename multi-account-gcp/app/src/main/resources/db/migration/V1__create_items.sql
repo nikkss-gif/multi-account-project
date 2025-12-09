@@ -2,5 +2,5 @@ CREATE TABLE IF NOT EXISTS item (
   id BIGSERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   description TEXT,
-  created_at TIMESTAMP WITH TIME ZONE
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
