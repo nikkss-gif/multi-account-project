@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.9'
 
 services:
   postgres:
@@ -23,11 +23,6 @@ services:
     container_name: demo_redis
     ports:
       - "6379:6379"
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
 
   minio:
     image: minio/minio:latest
@@ -47,11 +42,6 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
-    healthcheck:
-      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
@@ -81,14 +71,13 @@ services:
 
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
-
-    ports:
-      - "8080:8080"
     depends_on:
       - postgres
       - redis
       - minio
       - rabbitmq
+    ports:
+      - "8080:8080"
 
   worker:
     image: 785661981860.dkr.ecr.ap-south-1.amazonaws.com/worker-app:latest
@@ -109,8 +98,8 @@ services:
       SPRING_REDIS_PORT: 6379
     depends_on:
       - postgres
-      - rabbitmq
       - minio
+      - rabbitmq
       - redis
 
   frontend:
