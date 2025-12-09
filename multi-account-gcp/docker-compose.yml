@@ -62,20 +62,21 @@ services:
       SPRING_DATASOURCE_USERNAME: demo
       SPRING_DATASOURCE_PASSWORD: demo
 
-      MINIO_ENDPOINT: http://minio:9000
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
-
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
 
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
+
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+
     depends_on:
       - postgres
       - redis
-      - minio
       - rabbitmq
+      - minio
     ports:
       - "8080:8080"
 
@@ -87,26 +88,27 @@ services:
       SPRING_DATASOURCE_USERNAME: demo
       SPRING_DATASOURCE_PASSWORD: demo
 
-      MINIO_ENDPOINT: http://minio:9000
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
-
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
 
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
+
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+
     depends_on:
       - postgres
-      - minio
-      - rabbitmq
       - redis
+      - rabbitmq
+      - minio
 
   frontend:
     image: 785661981860.dkr.ecr.ap-south-1.amazonaws.com/frontend-app:latest
     container_name: demo_frontend
     ports:
-      - "3001:80"
+      - "3001:80"  
     depends_on:
       - backend
 
