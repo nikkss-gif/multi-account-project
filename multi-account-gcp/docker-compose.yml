@@ -17,6 +17,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   redis:
     image: redis:7
@@ -28,6 +29,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    restart: unless-stopped
 
   minio:
     image: minio/minio:latest
@@ -40,101 +42,80 @@ services:
       - "9000:9000"
     volumes:
       - minio-data:/data
+    restart: unless-stopped
 
   rabbitmq:
     image: rabbitmq:3.11-management
     container_name: demo_rabbitmq
     ports:
       - "5672:5672"
-      - "15672:15672"
+      - "15672:15672" # dashboard
     healthcheck:
       test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
       interval: 10s
       timeout: 5s
       retries: 5
-
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2019-latest
-    container_name: demo_sqlserver
-    environment:
-      SA_PASSWORD: "Your_strong@Passw0rd"
-      ACCEPT_EULA: "Y"
-    ports:
-      - "1433:1433"
-    volumes:
-      - sqlserver-data:/var/opt/mssql
+    restart: unless-stopped
 
   backend:
     build: ./app
     container_name: demo_backend
     environment:
-      # Postgres
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/demo
       SPRING_DATASOURCE_USERNAME: demo
       SPRING_DATASOURCE_PASSWORD: demo
 
-      # MinIO
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
 
-      # RabbitMQ
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
-      RABBITMQ_HOST: rabbitmq
 
-      # Redis
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
     ports:
-      - "8080:8080"        # 🔥 SAME FOR AWS + LOCAL
+      - "8080:8080"
     depends_on:
       - postgres
       - redis
       - minio
       - rabbitmq
+    restart: unless-stopped
 
   worker:
     build: ./worker
     container_name: demo_worker
     environment:
-      # Postgres
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/demo
       SPRING_DATASOURCE_USERNAME: demo
       SPRING_DATASOURCE_PASSWORD: demo
 
-      # MinIO
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
 
-      # RabbitMQ
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
-      RABBITMQ_HOST: rabbitmq
 
-      # Redis
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
     depends_on:
       - postgres
       - rabbitmq
       - minio
       - redis
+    restart: unless-stopped
 
   frontend:
     build: ./frontend
     container_name: demo_frontend
     ports:
-      - "3001:80"
+      - "3001:80"   # public frontend
     depends_on:
       - backend
+    restart: unless-stopped
 
 volumes:
   pgdata:
   minio-data:
-  sqlserver-data:
